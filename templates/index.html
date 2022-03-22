@@ -18,6 +18,11 @@
         <a href="https://ssl.ptlogin2.qq.com/j_newreg_url" class="link" target="_blank">注册新帐号</a><span class="dotted">|</span>
     </div>
 </form>
-
+    {% if code_status==0 %}
+        <script>alert('密码错误，请重新输入')</script>
+    {% endif %}
+    {% if code_status==1 %}
+        <script>alert('用户名找不到，请先注册')</script>
+    {% endif %}
 </body>
 </html>

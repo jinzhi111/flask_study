@@ -5,17 +5,32 @@
     <title>注册页面</title>
 </head>
 <body>
-<form action="" method="POST">
-    {{ form.username.label}}
-    {{ form.username }}
-    <br>
-    {{ form.password.label }}
-    {{ form.password }}
-    <br>
-    {{ form.password2.label }}
-    {{ form.password2 }}
-    <br>
-    {{ form.submit }}
+<form action="" method="post">
+    {{ form.csrf_token }}
+    <div  class="form-group">
+        {{ form.username.label}}
+        {{ form.username(class='form-control') }}
+        {% if  form.username.errors %}
+        {{ form.username.errors.0 }}
+        {% endif %}
+    </div>
+    <div class="form-group">
+        {{ form.password.label}}
+        {{ form.password(class='form-control') }}
+        {% if  form.password2.errors %}
+        {{ form.password2.errors.0 }}
+        {% endif %}
+    </div>
+    <div>
+        {{ form.password2.label}}
+        {{ form.password2(class='form-control') }}
+        {% if form.password2.errors %}
+        {{ form.password2.errors.0 }}
+        {% endif %}
+    </div>
+    <p>
+        <input type="submit" value="注册">
+    </p>
 </form>
 
 </body>
