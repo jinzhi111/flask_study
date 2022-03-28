@@ -17,10 +17,10 @@ class Register(FlaskForm):
     """
     username = StringField(label='用户名',
                            validators=[DataRequired(u'用户名不能为空'), Length(min=8, max=8, message='用户名长度必须是8位'),
-                                       Regexp(regex=r'^\S+\w{6}\S{1,}', message='用户名不可以有特殊字符和空格')],
+                                       Regexp(regex=r'^\S+\w{6}\S{1,}', message='用户名不可以有特殊字符或者空格')],
                            render_kw={"class": "form-control", "placeholder": "请输入用户名", "required": 'required'})
     password = PasswordField(label='密码', validators=[DataRequired(u'密码不能为空'), Length(min=5, message='密码长度必须大于5位'),
-                                                     Regexp(regex=r'^[A-Za-z0-9]+$', message='密码只能是字母和数字组合')],
+                                                     Regexp(regex=r'^(?!^\d+$)(?!^[a-zA-Z]+$)[0-9a-zA-Z]{5,23}',message='密码只能是字母和数字组合')],
                              render_kw={"class": "form-control", "placeholder": "请输入密码", "required": 'required'})
     password2 = PasswordField(label='密码确认', validators=[DataRequired(u'密码不能为空'), EqualTo('password', '两次密码不相同')],
                               render_kw={"class": "form-control", "placeholder": "请再次输入密码", "required": 'required'})

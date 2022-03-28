@@ -1,14 +1,17 @@
 # @Time : 2022-03-13 22:12 
 # @Author : 金枝
+import time
+
 from flask import Flask, render_template, request, url_for, flash
 from werkzeug.utils import redirect
 
 from form import Register
+
 app = Flask(__name__, template_folder='templates')
 # 给程序添加上任意字符串，因为程序有机制保护代码不被随意访问
 app.config['SECRET_KEY'] = 'shdhgfg'
 
-user = {}
+user = {'jinzhi11': '1111111'}
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -24,8 +27,9 @@ def index():
                 return render_template('index.html', login_status=0)
         except KeyError:
             # login_status = 1
-            return redirect(url_for('register'))
-            # return render_template('index.html', login_status=1)
+
+            # return redirect(url_for('register'))
+            return render_template('index.html', login_status=1)
     return render_template('index.html')
 
 
@@ -34,15 +38,20 @@ def register():
     form = Register()
     if request.method == 'POST':
         # 走自定义表单验证
-        if form.validate_on_submit():
-            username = form.username.data
-            password = form.password.data
-            password2 = form.password2.data
-            user[username] = password
-            print(user)
-            return redirect(url_for('index'))
+        username = form.username.data
+        password = form.password.data
+        password2 = form.password2.data
+        if username in user.keys():
+            flash('用户已存在，请重新填写注册名')
         else:
-            flash('注册失败')
+            if form.validate_on_submit():
+                user[username] = password
+                print(user)
+                return render_template('register.html', form=form, register_status=1)
+                # flash('注册成功')
+                # return redirect(url_for('index'))
+            else:
+                return render_template('register.html', form=form)
     return render_template('register.html', form=form)
 
 
@@ -64,4 +73,4 @@ def register():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
