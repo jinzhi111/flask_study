@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, url_for, flash
 from werkzeug.utils import redirect
 
 from common import *
-from form import Register
+from form import *
 
 app = Flask(__name__, template_folder='templates')
 # 给程序添加上任意字符串，因为程序有机制保护代码不被随意访问
@@ -56,9 +56,24 @@ def register():
                 return render_template('register.html', form=form)
     return render_template('register.html', form=form)
 
+
 @app.route('/reset_pwd', methods=['GET', 'POST'])
 def reset_pwd():
-    pass
+    user_dict = user_data()
+    form = ResetPwd()
+    if request.method == 'POST':
+        username = form.username.data
+        password = form.password.data
+        if username not in user_dict.keys():
+            flash('需要修改密码的账号不存在，请输入正确账号')
+        else:
+            if form.validate_on_submit():
+                mysql = mysql_db()
+                mysql.updata(f'UPDATE flask_study.flask_user SET PASSWORD = "{password}" WHERE username = "{username}"')
+                return render_template('reset_pwd.html', form=form, reset_status=1)
+            else:
+                return render_template('reset_pwd.html', form=form)
+    return render_template('reset_pwd.html', form=form)
 
 
 
