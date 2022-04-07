@@ -1,20 +1,35 @@
 # @Time : 2022-03-13 22:12 
 # @Author : 金枝
 import time
+from datetime import timedelta
 
-from flask import Flask, render_template, request, url_for, flash
+from flask import Flask, render_template, request, url_for, flash, session
 from werkzeug.utils import redirect
 
 from common import *
 from form import *
+from flask_login import login_required, current_user, LoginManager
+
 
 app = Flask(__name__, template_folder='templates')
 # 给程序添加上任意字符串，因为程序有机制保护代码不被随意访问
 app.config['SECRET_KEY'] = 'shdhgfg'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(seconds=30)  # 设置session时间，30s过期
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
+# login_manager = LoginManager(app)
+# login_manager.init_app(app)  # 初始化
+# login_manager.session_protection = 'strong'
+# login_manager.login_view = 'index'
+#
+# # 这个callback函数用于reload User object，根据session中存储的user id
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return User.get(user_id)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
     # 创建表单对象
     user_dict = user_data()
     if request.method == 'POST':
@@ -22,7 +37,15 @@ def index():
         password = request.form.get('password')
         try:
             if user_dict[username] == password:
-                return '登录成功'
+                session['username'] = username
+                # return '登录成功'
+                # 登录成功后返回上级页面
+                next_page_url = request.args.get('next')
+                # 如果 next_page_url 为空，直接返回首页
+                if not next_page_url:  # or url_parse(next_page_url).netloc != ''
+                    return redirect(url_for('setting'))
+                else:
+                    return redirect(next_page_url)
             else:
                 return render_template('index.html', login_status=0)
         except KeyError:
@@ -76,22 +99,13 @@ def reset_pwd():
     return render_template('reset_pwd.html', form=form)
 
 
-
-# @app.route('/register', methods=['GET', 'POST'])
-# def register():
-#     if request.method == 'POST':
-#         username = request.form.get('username')
-#         password = request.form.get('password')
-#         repassword = request.form.get('repassword')
-#         if password == repassword:
-#             if username not in user.keys():
-#                 user[username] = password
-#                 return redirect(url_for('index'))
-#             else:
-#                 return '账号已注册，请直接登录'
-#         else:
-#             return '两次密码不相同，请重新输入'
-#     return render_template('register1.html')
+@app.route('/', methods=['GET', 'POST'])
+def setting():
+    # 判断用户是否登录，已登录直接进入首页
+    if 'username' in session:
+        return render_template('setting.html', name=session['username'])
+    # 未登录跳转登录页面
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
